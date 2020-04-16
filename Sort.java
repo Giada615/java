@@ -276,7 +276,7 @@ public class Sort {
         return begin;
     }
 
-    // 优化递归过深而可能导致的栈溢出的问题
+    // 7.优化递归过深而可能导致的栈溢出的问题
     public static void quickSort1(int[] array, int left, int right) {
         if (right - left > 16) {
             inserSort(array, left, right);
@@ -293,7 +293,7 @@ public class Sort {
         }
     }
 
-    // 循环实现快排
+    // 8.循环实现快排
     public static void quickSortOP(int[] array){
         Stack<Integer> s=new Stack<>();
         s.push(array.length);
@@ -315,7 +315,98 @@ public class Sort {
         }
     }
 
+// 合并数据  [left,mid)  [mid,right)
+    private static void mergeData(int[] array,int left,int mid,int right,int[] temp){
+        int index=left;
+        int begin1=left,end1=mid,begin2=mid,end2=right;
 
+        while (begin1<end1 && begin2<end2){
+            if (array[begin1] <= array[begin2]) {
+                temp[index++]=array[begin1++];
+            } else {
+                temp[index++]=array[begin2++];
+            }
+        }
+        // 如果第一个区间中还有数据
+        while (begin1<end1) {
+            temp[index++] = array[begin1++];
+        }
+            // 如果第二个区间有数据
+            while (begin2<end2){
+                temp[index++]=array[begin2++];
+            }
+    }
+
+    // 9.归并排序
+    private static void mergeSort(int[] array,int left,int right,int[] temp){
+        if (right-left>1){
+            int mid=left+((right-left)>>1);
+            // 1.划分数据
+            // [left,mid)--->左半部分
+            mergeSort(array,left,mid,temp);
+
+            // [mid,right)--->右半部分
+            mergeSort(array,mid,right,temp);
+
+            // 2.归并数据
+            mergeData(array,left,mid,right,temp);
+
+            // 因为归并好的数据存储在临时空间temp中
+            // 3. 将temp中的数据拷贝到array中去
+            System.arraycopy(temp,left,array,left,right-left);
+        }
+    }
+
+    private static void mergeSortOP(int[] array,int left,int right,int[] temp){
+        if (right-left<16) {  //没必要一直划分数据到1
+            inserSort(array, left, right);
+        }else {
+            int mid=left+((right-left)>>1);
+            // 1.划分数据
+            // [left,mid)--->左半部分
+            mergeSort(array,left,mid,temp);
+
+            // [mid,right)--->右半部分
+            mergeSort(array,mid,right,temp);
+
+            // 2.归并数据
+            mergeData(array,left,mid,right,temp);
+
+            // 因为归并好的数据存储在临时空间temp中
+            // 3. 将temp中的数据拷贝到array中去
+            System.arraycopy(temp,left,array,left,right-left);
+        }
+    }
+
+    //为了方便用户调用
+    public static void mergeSort(int[] array){
+        int[] temp=new int[array.length];
+        mergeSort(array,0,array.length,temp);
+    }
+
+    //  10. 循环实现递归排序
+    public static void mergeSortNor(int[] array) {
+        int[] temp = new int[array.length];
+        int gap = 1;
+
+        while (gap < array.length) {
+            for (int i = 0; i < array.length; i += gap * 2) {
+                int left = i;
+                int mid = left + gap;
+                int right = mid + gap;
+
+                if (mid > array.length) {
+                    mid = array.length;
+                }
+                if (right > array.length) {
+                    right = array.length;
+                }
+                mergeData(array, left, mid, right, temp);
+            }
+                System.arraycopy(temp, 0, array, 0, array.length);
+                gap <<=1;
+        }
+    }
 
 
     public static void swap(int[] array,int left,int right){
@@ -325,13 +416,16 @@ public class Sort {
 }
 
     public static void main(String[] args) {
-        int[] array={3,6,9,4,1,5,2,0,8,7};
+        int[] array={3,8,9,4,1,5,2,0,6,7};
         //inserSort(array);
         //shellSort(array);
         //selsectSort(array);
         //selectSortOP(array);
         //heapSort(array);
-        quickSort(array,0,array.length);
+        //quickSort(array,0,array.length);
+        //mergeSort(array);
+        mergeSortNor(array);
         printArray(array);
+
     }
 }
